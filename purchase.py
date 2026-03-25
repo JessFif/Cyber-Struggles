@@ -23,7 +23,7 @@ class purchase_inbox:
 
         self.max_money_reached = 0 # To keep track of the most money user has had at any time, used to unlock third party services in the shop
 
-        self.overall_money_multiplier = 10
+        self.overall_money_multiplier = 1
         self.overall_money_multiplier_timers = [] # [multiplier, time until multiplier runs out (-1 is infinite)] Adds multipliers if you report emails correctly/incorrectly as scams
 
         self.purchase_spawn_distance = 140 # Starts out that purchases spawn extra far apart, so the user can upgrade it

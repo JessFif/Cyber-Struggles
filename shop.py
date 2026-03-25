@@ -110,7 +110,36 @@ class shop_inbox:
                 self.fake_optional_services.remove(service)
 
             self.currently_available_services = possible_services
-            self.money_barrier *= 10
+            self.money_barrier *= 10 # Increment it 
+
+    def check_service_clicked(self, mouse_pos, purchase_inbox):
+        if self.currently_available_services != []:
+            mouse_rect = pyg.Rect(mouse_pos[0], mouse_pos[1], 10, 10)
+
+            index = 6 # Matches with the one in Draw Shop
+            box_rects = []
+            box_rects.append(pyg.Rect(self.window_pos[0] + self.width / 8 - 100, self.window_pos[1] + 125 + index * 75, 80, 40))
+            box_rects.append(pyg.Rect(self.window_pos[0] + self.width / 4 - 40, self.window_pos[1] + 125 + index * 75, 80, 40))
+            box_rects.append(pyg.Rect(self.window_pos[0] + self.width / 8 * 3 + 20, self.window_pos[1] + 125 + index * 75, 80, 40))
+            for i in range(len(box_rects)):
+                if mouse_rect.colliderect(box_rects[i]):
+                    service = self.currently_available_services[i]
+                    if service[1] == "Real": # If you chose a real service, add it is an upgrade
+                        self.upgrades[service[0]] = self.all_optional_services[service[0]][:3] # Only keeps the important parts
+                        self.currently_available_services.remove(service)
+
+                        for service in self.currently_available_services: # Re-add the other services to their respective lists
+                            if service[1] == "Real": 
+                                self.real_optional_services.append(service[0])
+                            elif service[1] == "Fake":
+                                self.fake_optional_services.append(service[0])
+                        self.currently_available_services = []
+                        return
+                    else:
+                        self.currently_available_services[i] = ["SCAM BOUGHT", ""]
+                        purchase_inbox.overall_money_multiplier_timers.append([0.75, 60 * 60, 60 * 60])
+                        purchase_inbox.overall_money_multiplier_timers = sorted(purchase_inbox.overall_money_multiplier_timers, key=lambda x:x[1]) # Sorts the multipliers so that the one that will dissapear first at first in queue
+
 
             
     
@@ -168,7 +197,7 @@ class shop_inbox:
 
     # ------------------------- DISPLAY -----------------------
 
-    def show_shop(self, screen, money):
+    def show_shop(self, screen, money, purchase_inbox):
         # Draws the purchase inbox window then the purchases, then the outlines so they are on top
         pyg.draw.rect(screen, "light gray", [self.window_pos[0], self.window_pos[1], self.width / 2, self.height / 4 * 3])
 
@@ -211,57 +240,69 @@ class shop_inbox:
 
         if self.currently_available_services != []:
             display_text("Third Party Services Available:", self.window_pos[0] + self.width / 4, self.window_pos[1] + 95 + index * 75, "center", 25, "black", screen)
-            index += 1 # Moves stuff down the screen
+            index += 1 # Moves stuff down the screen, should be index = 6
 
             mouse_pos = pyg.mouse.get_pos()
             mouse_rect = pyg.Rect(mouse_pos[0], mouse_pos[1], 10, 10)
 
             # Doing it manually to have finer control of placement
             service = self.currently_available_services[0][0]
-            display_text(service, self.window_pos[0] + self.width / 8 - 60, self.window_pos[1] + 80 + index * 75, "center", 18, "black", screen)
-            display_text(self.all_optional_services[service][4], self.window_pos[0] + self.width / 8 - 60, self.window_pos[1] + 100 + index * 75, "center", 13, "black", screen)
-
-            box_rect = pyg.Rect(self.window_pos[0] + self.width / 8 - 100, self.window_pos[1] + 125 + index * 75, 80, 40)
-            if mouse_rect.colliderect(box_rect):
-                pyg.draw.rect(screen, "green", box_rect)
+            if service == "SCAM BOUGHT":
+                display_text(service, self.window_pos[0] + self.width / 8 - 60, self.window_pos[1] + 80 + index * 75, "center", 18, "black", screen)
+                display_text("They will steal some of your money for 1min", self.window_pos[0] + self.width / 8 - 60, self.window_pos[1] + 100 + index * 75, "center", 13, "black", screen)
             else:
-                pyg.draw.rect(screen, "red", box_rect)
-            pyg.draw.rect(screen, "black", box_rect, 2)
-            display_text("Choose?", self.window_pos[0] + self.width / 8 - 60, self.window_pos[1] + 145 + index * 75, "center", 15, "black", screen)
+                display_text(service, self.window_pos[0] + self.width / 8 - 60, self.window_pos[1] + 80 + index * 75, "center", 18, "black", screen)
+                display_text(self.all_optional_services[service][4], self.window_pos[0] + self.width / 8 - 60, self.window_pos[1] + 100 + index * 75, "center", 13, "black", screen)
+
+                box_rect = pyg.Rect(self.window_pos[0] + self.width / 8 - 100, self.window_pos[1] + 125 + index * 75, 80, 40)
+                if mouse_rect.colliderect(box_rect):
+                    pyg.draw.rect(screen, "green", box_rect)
+                else:
+                    pyg.draw.rect(screen, "red", box_rect)
+                pyg.draw.rect(screen, "black", box_rect, 2)
+                display_text("Choose?", self.window_pos[0] + self.width / 8 - 60, self.window_pos[1] + 145 + index * 75, "center", 15, "black", screen)
 
 
             service = self.currently_available_services[1][0]
-            display_text(service, self.window_pos[0] + self.width / 4, self.window_pos[1] + 80 + index * 75, "center", 18, "black", screen)
-            display_text(self.all_optional_services[service][4], self.window_pos[0] + self.width / 4, self.window_pos[1] + 100 + index * 75, "center", 13, "black", screen)
-
-            box_rect = pyg.Rect(self.window_pos[0] + self.width / 4 - 40, self.window_pos[1] + 125 + index * 75, 80, 40)
-            if mouse_rect.colliderect(box_rect):
-                pyg.draw.rect(screen, "green", box_rect)
+            if service == "SCAM BOUGHT":
+                display_text(service, self.window_pos[0] + self.width / 4, self.window_pos[1] + 80 + index * 75, "center", 18, "black", screen)
+                display_text("They will steal some of your money", self.window_pos[0] + self.width / 4, self.window_pos[1] + 100 + index * 75, "center", 13, "black", screen)
             else:
-                pyg.draw.rect(screen, "red", box_rect)
-            pyg.draw.rect(screen, "black", box_rect, 2)
-            display_text("Choose?", self.window_pos[0] + self.width / 4, self.window_pos[1] + 145 + index * 75, "center", 15, "black", screen)
+                display_text(service, self.window_pos[0] + self.width / 4, self.window_pos[1] + 80 + index * 75, "center", 18, "black", screen)
+                display_text(self.all_optional_services[service][4], self.window_pos[0] + self.width / 4, self.window_pos[1] + 100 + index * 75, "center", 13, "black", screen)
+
+                box_rect = pyg.Rect(self.window_pos[0] + self.width / 4 - 40, self.window_pos[1] + 125 + index * 75, 80, 40)
+                if mouse_rect.colliderect(box_rect):
+                    pyg.draw.rect(screen, "green", box_rect)
+                else:
+                    pyg.draw.rect(screen, "red", box_rect)
+                pyg.draw.rect(screen, "black", box_rect, 2)
+                display_text("Choose?", self.window_pos[0] + self.width / 4, self.window_pos[1] + 145 + index * 75, "center", 15, "black", screen)
 
 
             service = self.currently_available_services[2][0]
-            display_text(service, self.window_pos[0] + self.width / 8 * 3 + 60, self.window_pos[1] + 80 + index * 75, "center", 18, "black", screen)
-            display_text(self.all_optional_services[service][4], self.window_pos[0] + self.width / 8 * 3 + 60, self.window_pos[1] + 100 + index * 75, "center", 13, "black", screen)
-
-            box_rect = pyg.Rect(self.window_pos[0] + self.width / 8 * 3 + 20, self.window_pos[1] + 125 + index * 75, 80, 40)
-            if mouse_rect.colliderect(box_rect):
-                pyg.draw.rect(screen, "green", box_rect)
+            if service == "SCAM BOUGHT":
+                display_text(service, self.window_pos[0] + self.width / 8 * 3 + 60, self.window_pos[1] + 80 + index * 75, "center", 18, "black", screen)
+                display_text("They will steal some of your money", self.window_pos[0] + self.width / 8 * 3 + 60, self.window_pos[1] + 100 + index * 75, "center", 13, "black", screen)
             else:
-                pyg.draw.rect(screen, "red", box_rect)
-            pyg.draw.rect(screen, "black", box_rect, 2)
-            display_text("Choose?", self.window_pos[0] + self.width / 8 * 3 + 60, self.window_pos[1] + 145 + index * 75, "center", 15, "black", screen)
+                display_text(service, self.window_pos[0] + self.width / 8 * 3 + 60, self.window_pos[1] + 80 + index * 75, "center", 18, "black", screen)
+                display_text(self.all_optional_services[service][4], self.window_pos[0] + self.width / 8 * 3 + 60, self.window_pos[1] + 100 + index * 75, "center", 13, "black", screen)
+
+                box_rect = pyg.Rect(self.window_pos[0] + self.width / 8 * 3 + 20, self.window_pos[1] + 125 + index * 75, 80, 40)
+                if mouse_rect.colliderect(box_rect):
+                    pyg.draw.rect(screen, "green", box_rect)
+                else:
+                    pyg.draw.rect(screen, "red", box_rect)
+                pyg.draw.rect(screen, "black", box_rect, 2)
+                display_text("Choose?", self.window_pos[0] + self.width / 8 * 3 + 60, self.window_pos[1] + 145 + index * 75, "center", 15, "black", screen)
         else: # If no third party services on offer, show a progress bar
             display_text("Third Party Services Unavailable!", self.window_pos[0] + self.width / 4, self.window_pos[1] + 95 + index * 75, "center", 25, "black", screen)
-            index += 1 # Moves stuff down the screen
+            index += 1 # Moves stuff down the screen, should be index = 6
             pyg.draw.rect(screen, "white", [self.window_pos[0] + 10, self.window_pos[1] + 50 + index * 75, self.width / 2 - 20, 100])
             pyg.draw.rect(screen, "black", [self.window_pos[0] + 10, self.window_pos[1] + 50 + index * 75, self.width / 2 - 20, 100], 2)
 
             pyg.draw.rect(screen, "red", [self.window_pos[0] + 50, self.window_pos[1] + 90 + index * 75, self.width / 2 - 100, 20])
-            pyg.draw.rect(screen, "green", [self.window_pos[0] + 50, self.window_pos[1] + 90 + index * 75, (self.width / 2 - 100) * (money / self.money_barrier), 20])
+            pyg.draw.rect(screen, "green", [self.window_pos[0] + 50, self.window_pos[1] + 90 + index * 75, (self.width / 2 - 100) * (purchase_inbox.max_money_reached / self.money_barrier), 20])
             pyg.draw.rect(screen, "black", [self.window_pos[0] + 50, self.window_pos[1] + 90 + index * 75, self.width / 2 - 100, 20], 2)
 
 

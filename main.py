@@ -34,11 +34,11 @@ def display_screen(display_screen, purchase_inbox, email_inbox, money):
         display_screen.blit(shop_icon, [WIDTH / 3, HEIGHT / 5 * 4])
 
     # Display money and multiplier
-    display_text("Money: $" + str(int(money)), int(WIDTH / 2), 40, 25, "black", display_screen)
+    display_text("Money: $" + str(round(money, 2)), int(WIDTH / 2), 40, 25, "black", display_screen)
     if purchase_inbox.overall_money_multiplier < 10:
-        display_text("Multiplier: " + str(purchase_inbox.overall_money_multiplier) + "x", int(WIDTH / 2), 70 + 2.5 * purchase_inbox.overall_money_multiplier, int(15 + 5 * purchase_inbox.overall_money_multiplier), "black", display_screen)
+        display_text("Multiplier: " + str(round(purchase_inbox.overall_money_multiplier, 2)) + "x", int(WIDTH / 2), 70 + 2.5 * purchase_inbox.overall_money_multiplier, int(15 + 5 * purchase_inbox.overall_money_multiplier), "black", display_screen)
     else:
-        display_text("Multiplier: " + str(purchase_inbox.overall_money_multiplier) + "x", int(WIDTH / 2), 70 + 2.5 * 10, int(15 + 5 * 10), "black", display_screen)
+        display_text("Multiplier: " + str(round(purchase_inbox.overall_money_multiplier, 2)) + "x", int(WIDTH / 2), 70 + 2.5 * 10, int(15 + 5 * 10), "black", display_screen)
     if purchase_inbox.overall_money_multiplier_timers != []:
         lowest_timer = purchase_inbox.overall_money_multiplier_timers[0] # It was already sorted!
         pyg.draw.line(screen, "black", [int(WIDTH / 5 * 2) - 5, 55], [int(WIDTH / 5 * 3) + 5, 55], 10)
@@ -53,7 +53,7 @@ def display_screen(display_screen, purchase_inbox, email_inbox, money):
         email_inbox.show_emails(display_screen)
     
     if state == "shop":
-        inbox_shop.show_shop(display_screen, money)
+        inbox_shop.show_shop(display_screen, money, purchase_inbox)
     # The particles are always shown
     purchase_inbox.show_particles(display_screen)
 
@@ -120,8 +120,10 @@ while running:
                     if mouse_pos[1] >= exit_icon_pos[1] and mouse_pos[1] <= exit_icon_pos[1] + 50:
                         state = "background"
             
-            if state == "shop": # If you are currently in the "shop" app, check if you clicked on one of the upgrades
+            if state == "shop": # If you are currently in the "shop" app, check if you clicked on one of the upgrades/services
                 money = inbox_shop.check_upgrade_clicked(mouse_pos, inbox_purchases, inbox_email, money)
+
+                inbox_shop.check_service_clicked(mouse_pos, inbox_purchases)
                 
                 # Check if you clicked on the exit icons
                 exit_icon_pos = inbox_shop.get_exit_icon_pos()

@@ -1,6 +1,12 @@
 import pygame as pyg
 import random as rnd
 
+test = [[12, 23], [0.2, 135], [213, 2]]
+test = sorted(test, key=lambda x: x[1])
+print(test)
+
+
+
 exit_icon = pyg.image.load("images/exit icon.png")
 
 # A function to get each text element displayed correctly ALSO USES ANCHOR!!!!!!!!!!!
@@ -61,10 +67,12 @@ class email_inbox:
             if mouse_pos[0] >= self.window_pos[0] + self.width / 8 - 150 and mouse_pos[0] <= self.window_pos[0] + self.width / 8 + 50:
                 if mouse_pos[1] >= self.window_pos[1] + self.height / 4 * 3 - 50 and mouse_pos[1] <= self.window_pos[1] + self.height / 4 * 3 - 20:
                     if self.open_email.email_type != "real":
-                        inbox.overall_money_multiplier_timers.append([self.email_multiplier, 180 * 60]) # If you report an email as a scam and it is a scam, add a 2.5x multiplier for 3 minutes
+                        inbox.overall_money_multiplier_timers.append([self.email_multiplier, 60 * 60, 60 * 60]) # If you report an email as a scam and it is a scam, add a 2.5x multiplier for 3 minutes
                     else:
-                        inbox.overall_money_multiplier_timers.append([0.5, 180 * 60]) # If you report an email as a scam and it is real, add a 0.5x multiplier for 3 minutes
+                        inbox.overall_money_multiplier_timers.append([0.5, 30 * 60, 30 * 60]) # If you report an email as a scam and it is real, add a 0.5x multiplier for 3 minutes
                     
+                    inbox.overall_money_multiplier_timers = sorted(inbox.overall_money_multiplier_timers, key=lambda x:x[1]) # Sorts the multipliers so that the one that will dissapear first at first in queue
+
                     self.emails.remove(self.open_email) # Remove the email you just reported from the inbox
                     self.open_email = None
                     self.update_all_emails(inbox)
@@ -73,7 +81,9 @@ class email_inbox:
             # Send to Security Team
             if mouse_pos[0] >= self.window_pos[0] + self.width / 8 * 2 - 100 and mouse_pos[0] <= self.window_pos[0] + self.width / 8 * 2 + 100: 
                 if mouse_pos[1] >= self.window_pos[1] + self.height / 4 * 3 - 50 and mouse_pos[1] <= self.window_pos[1] + self.height / 4 * 3 - 20:
-                    inbox.overall_money_multiplier_timers.append([self.email_multiplier / 2, 180 * 60]) # You are guaranteed to select the correct answer so you get a smaller multiplier
+                    inbox.overall_money_multiplier_timers.append([self.email_multiplier / 2, 60 * 60, 60 * 60]) # You are guaranteed to select the correct answer so you get a smaller multiplier
+
+                    inbox.overall_money_multiplier_timers = sorted(inbox.overall_money_multiplier_timers, key=lambda x:x[1]) # Sorts the multipliers so that the one that will dissapear first at first in queue
                     
                     self.emails.remove(self.open_email) # Remove the email you just reported from the inbox
                     self.open_email = None
@@ -84,9 +94,11 @@ class email_inbox:
             if mouse_pos[0] >= self.window_pos[0] + self.width / 8 * 3 - 100 + 50 and mouse_pos[0] <= self.window_pos[0] + self.width / 8 * 3 + 100:    
                 if mouse_pos[1] >= self.window_pos[1] + self.height / 4 * 3 - 50 and mouse_pos[1] <= self.window_pos[1] + self.height / 4 * 3 - 20:
                     if self.open_email.email_type == "real":
-                        inbox.overall_money_multiplier_timers.append([self.email_multiplier, 180 * 60]) # If you report an email as real and it is real, add a 2.5x multiplier for 3 minutes
+                        inbox.overall_money_multiplier_timers.append([self.email_multiplier, 60 * 60, 60 * 60]) # If you report an email as real and it is real, add a 2.5x multiplier for 3 minutes
                     else:
-                        inbox.overall_money_multiplier_timers.append([0.5, 180 * 60]) # If you report an email as real and it is a scam, add a 0.5x multiplier for 3 minutes
+                        inbox.overall_money_multiplier_timers.append([0.5, 30 * 60, 30 * 60]) # If you report an email as real and it is a scam, add a 0.5x multiplier for 3 minutes
+                        
+                    inbox.overall_money_multiplier_timers = sorted(inbox.overall_money_multiplier_timers, key=lambda x:x[1]) # Sorts the multipliers so that the one that will dissapear first at first in queue
                     
                     self.emails.remove(self.open_email) # Remove the email you just reported from the inbox
                     self.open_email = None

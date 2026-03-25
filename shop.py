@@ -48,12 +48,12 @@ class shop_inbox:
             "Echo Company": [0, 10, 150], # Max of 10 upgrades, increases chance to collect two purchases at once by 5%
         }
 
-        # self.upgrades = { # [Level, max level, cost]
-        #     "Purchase move speed": [0, 9, 100], # Max of 9 upgrades, each reduces by 1 second
-        #     "Money per purchase": [0, 10, 50], # Max of 10 upgrades, each increases by 1
-        #     "Special purchase multiplier": [0, 11, 25], # max of 11 upgrades, each increases multiplier by 5
-        #     "Email multiplier": [0, 10, 75] # Max of 10 upgrades, each increases multiplier by 0.5
-        # } 
+        self.upgrades = { # [Level, max level, cost]
+            "Purchase move speed": [0, 9, 100], # Max of 9 upgrades, each reduces by 1 second
+            "Money per purchase": [0, 10, 50], # Max of 10 upgrades, each increases by 1
+            "Special purchase multiplier": [0, 11, 25], # max of 11 upgrades, each increases multiplier by 5
+            "Email multiplier": [0, 10, 75] # Max of 10 upgrades, each increases multiplier by 0.5
+        } 
 
         self.all_optional_services = { # [Level, max level, cost, real/fake, description] You can unlock these as you play the game
             "Extra Office Workers": [0, 10, 250, "Real", "Automatically collects purchases"], # Automatically collects purchases
@@ -85,31 +85,32 @@ class shop_inbox:
     # ------------------------ THIRD PARTY SERVICES -----------------------
 
     def check_service_unlocked(self, purchase_inbox):
-        if purchase_inbox.max_money_reached >= self.money_barrier and self.currently_available_services != []: # Gets a random three services for the user to choose from
-            # Always gets at least one real service and one fake service (and one random)
+        if purchase_inbox.max_money_reached >= self.money_barrier and self.currently_available_services == []: # Gets a random three services for the user to choose from
+            # Always gets at least one real service and one fake service (and one randomly from either)
             possible_services = []
-            random_num = rnd.randint(0, len(self.real_optional_services))
+            random_num = rnd.randint(0, len(self.real_optional_services) - 1)
             service = self.real_optional_services[random_num]
             possible_services.append([service, "Real"])
             self.real_optional_services.remove(service)
 
-            random_num = rnd.randint(0, len(self.fake_optional_services))
+            random_num = rnd.randint(0, len(self.fake_optional_services) - 1)
             service = self.fake_optional_services[random_num]
             possible_services.append([service, "Fake"])
             self.fake_optional_services.remove(service)
 
             if rnd.randint(0, 1) == 0:
-                random_num = rnd.randint(0, len(self.real_optional_services))
+                random_num = rnd.randint(0, len(self.real_optional_services) - 1)
                 service = self.real_optional_services[random_num]
                 possible_services.append([service, "Real"])
                 self.real_optional_services.remove(service)
             else:
-                random_num = rnd.randint(0, len(self.fake_optional_services))
+                random_num = rnd.randint(0, len(self.fake_optional_services) - 1)
                 service = self.fake_optional_services[random_num]
                 possible_services.append([service, "Fake"])
                 self.fake_optional_services.remove(service)
 
             self.currently_available_services = possible_services
+            self.money_barrier *= 10
 
             
     
@@ -120,14 +121,18 @@ class shop_inbox:
 
         clicked_upgrade = None
         index = 0
+        x_adjust = 0
         for upgrade in self.upgrades:
-            upgrade_rect = pyg.Rect(self.window_pos[0] + 600, self.window_pos[1] + 70 + index * 75, 80, 30)
+            upgrade_rect = pyg.Rect(self.window_pos[0] + 310 + x_adjust, self.window_pos[1] + 80 + index * 75, 60, 30)
             if mouse_rect.colliderect(upgrade_rect): # What upgrade you clicked on
                 if self.upgrades[upgrade][0] < self.upgrades[upgrade][1]: # Is it already at max
-                    if int(self.upgrades[upgrade][2]) <= money:# Can you afford it
+                    if int(self.upgrades[upgrade][2]) <= int(money):# Can you afford it
                         clicked_upgrade = upgrade
                         break
             index += 1
+            if index >= 4 and x_adjust == 0:
+                x_adjust = self.width / 4 - 10
+                index = 0 # Resets the y value
         
         if clicked_upgrade != None:
             cost = self.upgrades[clicked_upgrade][2]
@@ -137,7 +142,7 @@ class shop_inbox:
             self.upgrades[clicked_upgrade][2] *= self.upgrade_cost_multiplier - (self.upgrades[clicked_upgrade][0] / self.upgrades[clicked_upgrade][1]) # Increases the cost of the next upgrade, but it increases less and less as you get closer to max level
 
             # Applies the upgrade
-            if clicked_upgrade == "Purchase spawn distance":
+            if clicked_upgrade == "Product Marketing Team":
                 purchase_inbox.purchase_spawn_distance -= 10
             if clicked_upgrade == "Purchase move speed":
                 purchase_inbox.purchase_time_to_move -= 1
@@ -146,9 +151,9 @@ class shop_inbox:
                 purchase_inbox.money_per_purchase += 1
             if clicked_upgrade == "Special purchase multiplier":
                 purchase_inbox.special_purchase_multiplier += 5
-            if clicked_upgrade == "Special purchase chance":
+            if clicked_upgrade == "Leprechauns Ltd":
                 purchase_inbox.special_purchase_chance *= 1.5
-            if clicked_upgrade == "Email spawn time":
+            if clicked_upgrade == "Communications Manager":
                 email_inbox.email_timer[1] -= 10 * 60 # Reduce 10 seconds
             if clicked_upgrade == "Email multiplier":
                 email_inbox.email_multiplier += 0.5
@@ -175,13 +180,13 @@ class shop_inbox:
 
             # level_text = str(self.upgrades[upgrade][0]) + "/" + str(self.upgrades[upgrade][1])
             # display_text("Level: " + level_text, self.window_pos[0] + 350, self.window_pos[1] + 70 + index * 75, "topleft", 20, "black", screen)
-            for i in range(self.upgrades[upgrade][1]):
+            for i in range(self.upgrades[upgrade][1]): # For each upgrade, shows how many have been purchased/the limit of purchases
                 if i < self.upgrades[upgrade][0]:
                     pyg.draw.rect(screen, "green", [self.window_pos[0] + 20 + i * 20 + x_adjust, self.window_pos[1] + 100 + index * 75, 15, 15])
                 pyg.draw.rect(screen, "black", [self.window_pos[0] + 20 + i * 20 + x_adjust, self.window_pos[1] + 100 + index * 75, 15, 15], 2)
 
-            # Upgrade button
-            if self.upgrades[upgrade][2] <= money and self.upgrades[upgrade][0] < self.upgrades[upgrade][1]:
+            # Upgrade button that shows the cost to upgrade inside
+            if int(self.upgrades[upgrade][2]) <= int(money) and self.upgrades[upgrade][0] < self.upgrades[upgrade][1]:
                 pyg.draw.rect(screen, "green", [self.window_pos[0] + 310 + x_adjust, self.window_pos[1] + 80 + index * 75, 60, 30])
             else:
                 pyg.draw.rect(screen, "red", [self.window_pos[0] + 310 + x_adjust, self.window_pos[1] + 80 + index * 75, 60, 30])
@@ -191,7 +196,6 @@ class shop_inbox:
                 cost_text = "$" + str(int(self.upgrades[upgrade][2]))
             else:
                 cost_text = "MAX"
-            # display_text("Cost: " + cost_text, self.window_pos[0] + 310, self.window_pos[1] + 80 + index * 75, "topleft", 20, "black", screen)
 
             display_text(cost_text, self.window_pos[0] + 340 + x_adjust, self.window_pos[1] + 95 + index * 75, "center", 15, "white", screen)
             index += 1
@@ -199,9 +203,73 @@ class shop_inbox:
                 x_adjust = self.width / 4 - 10
                 index = 0 # Resets the y value
         
+
+        # Draws the third party services section
+
+        index = 5 # Since the last possible index is 4 (starts at 0). If it needs to be adjusted it can easily here
+        pyg.draw.line(screen, "black", [self.window_pos[0], self.window_pos[1] + 70 + index * 75], [self.window_pos[0] + self.width / 2, self.window_pos[1] + 70 + index * 75], 2)
+
+        if self.currently_available_services != []:
+            display_text("Third Party Services Available:", self.window_pos[0] + self.width / 4, self.window_pos[1] + 95 + index * 75, "center", 25, "black", screen)
+            index += 1 # Moves stuff down the screen
+
+            mouse_pos = pyg.mouse.get_pos()
+            mouse_rect = pyg.Rect(mouse_pos[0], mouse_pos[1], 10, 10)
+
+            # Doing it manually to have finer control of placement
+            service = self.currently_available_services[0][0]
+            display_text(service, self.window_pos[0] + self.width / 8 - 60, self.window_pos[1] + 80 + index * 75, "center", 18, "black", screen)
+            display_text(self.all_optional_services[service][4], self.window_pos[0] + self.width / 8 - 60, self.window_pos[1] + 100 + index * 75, "center", 13, "black", screen)
+
+            box_rect = pyg.Rect(self.window_pos[0] + self.width / 8 - 100, self.window_pos[1] + 125 + index * 75, 80, 40)
+            if mouse_rect.colliderect(box_rect):
+                pyg.draw.rect(screen, "green", box_rect)
+            else:
+                pyg.draw.rect(screen, "red", box_rect)
+            pyg.draw.rect(screen, "black", box_rect, 2)
+            display_text("Choose?", self.window_pos[0] + self.width / 8 - 60, self.window_pos[1] + 145 + index * 75, "center", 15, "black", screen)
+
+
+            service = self.currently_available_services[1][0]
+            display_text(service, self.window_pos[0] + self.width / 4, self.window_pos[1] + 80 + index * 75, "center", 18, "black", screen)
+            display_text(self.all_optional_services[service][4], self.window_pos[0] + self.width / 4, self.window_pos[1] + 100 + index * 75, "center", 13, "black", screen)
+
+            box_rect = pyg.Rect(self.window_pos[0] + self.width / 4 - 40, self.window_pos[1] + 125 + index * 75, 80, 40)
+            if mouse_rect.colliderect(box_rect):
+                pyg.draw.rect(screen, "green", box_rect)
+            else:
+                pyg.draw.rect(screen, "red", box_rect)
+            pyg.draw.rect(screen, "black", box_rect, 2)
+            display_text("Choose?", self.window_pos[0] + self.width / 4, self.window_pos[1] + 145 + index * 75, "center", 15, "black", screen)
+
+
+            service = self.currently_available_services[2][0]
+            display_text(service, self.window_pos[0] + self.width / 8 * 3 + 60, self.window_pos[1] + 80 + index * 75, "center", 18, "black", screen)
+            display_text(self.all_optional_services[service][4], self.window_pos[0] + self.width / 8 * 3 + 60, self.window_pos[1] + 100 + index * 75, "center", 13, "black", screen)
+
+            box_rect = pyg.Rect(self.window_pos[0] + self.width / 8 * 3 + 20, self.window_pos[1] + 125 + index * 75, 80, 40)
+            if mouse_rect.colliderect(box_rect):
+                pyg.draw.rect(screen, "green", box_rect)
+            else:
+                pyg.draw.rect(screen, "red", box_rect)
+            pyg.draw.rect(screen, "black", box_rect, 2)
+            display_text("Choose?", self.window_pos[0] + self.width / 8 * 3 + 60, self.window_pos[1] + 145 + index * 75, "center", 15, "black", screen)
+        else: # If no third party services on offer, show a progress bar
+            display_text("Third Party Services Unavailable!", self.window_pos[0] + self.width / 4, self.window_pos[1] + 95 + index * 75, "center", 25, "black", screen)
+            index += 1 # Moves stuff down the screen
+            pyg.draw.rect(screen, "white", [self.window_pos[0] + 10, self.window_pos[1] + 50 + index * 75, self.width / 2 - 20, 100])
+            pyg.draw.rect(screen, "black", [self.window_pos[0] + 10, self.window_pos[1] + 50 + index * 75, self.width / 2 - 20, 100], 2)
+
+            pyg.draw.rect(screen, "red", [self.window_pos[0] + 50, self.window_pos[1] + 90 + index * 75, self.width / 2 - 100, 20])
+            pyg.draw.rect(screen, "green", [self.window_pos[0] + 50, self.window_pos[1] + 90 + index * 75, (self.width / 2 - 100) * (money / self.money_barrier), 20])
+            pyg.draw.rect(screen, "black", [self.window_pos[0] + 50, self.window_pos[1] + 90 + index * 75, self.width / 2 - 100, 20], 2)
+
+
+            
+        # Draws the outside of the window
         pyg.draw.rect(screen, "black", [self.window_pos[0], self.window_pos[1], self.width / 2, self.height / 4 * 3], 5)
         pyg.draw.line(screen, "black", [self.window_pos[0], self.window_pos[1] + 50], [self.window_pos[0] + self.width / 2, self.window_pos[1] + 50], 2)
         screen.blit(exit_icon, [self.window_pos[0] + self.width / 2 - 50, self.window_pos[1]])
 
-        # Draws a light blue box that reaches the bottom of the screen to hide purchases that shouldn't be on screen
+        # Draws a light blue box that reaches the bottom of the screen to hide stuff that shouldn't be on screen
         pyg.draw.rect(screen, "light blue", [self.window_pos[0], self.window_pos[1] + self.height / 4 * 3, self.width / 2, self.height - (self.window_pos[1] + self.height / 4 * 3)])

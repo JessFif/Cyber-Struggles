@@ -34,12 +34,17 @@ def display_screen(display_screen, purchase_inbox, email_inbox, money):
         display_screen.blit(shop_icon, [WIDTH / 3, HEIGHT / 5 * 4])
 
     # Display money and multiplier
-    display_text("Money: $" + str(int(money)), int(WIDTH / 2), 50, 25, "black", display_screen)
+    display_text("Money: $" + str(int(money)), int(WIDTH / 2), 40, 25, "black", display_screen)
     if purchase_inbox.overall_money_multiplier < 10:
-        display_text("Multiplier: " + str(purchase_inbox.overall_money_multiplier) + "x", int(WIDTH / 2), 70 + 5 * purchase_inbox.overall_money_multiplier, int(15 + 5 * purchase_inbox.overall_money_multiplier), "black", display_screen)
+        display_text("Multiplier: " + str(purchase_inbox.overall_money_multiplier) + "x", int(WIDTH / 2), 70 + 2.5 * purchase_inbox.overall_money_multiplier, int(15 + 5 * purchase_inbox.overall_money_multiplier), "black", display_screen)
     else:
-        display_text("Multiplier: " + str(purchase_inbox.overall_money_multiplier) + "x", int(WIDTH / 2), 70 + 5 * 10, int(15 + 5 * 10), "black", display_screen)
-    
+        display_text("Multiplier: " + str(purchase_inbox.overall_money_multiplier) + "x", int(WIDTH / 2), 70 + 2.5 * 10, int(15 + 5 * 10), "black", display_screen)
+    if purchase_inbox.overall_money_multiplier_timers != []:
+        lowest_timer = purchase_inbox.overall_money_multiplier_timers[0] # It was already sorted!
+        pyg.draw.line(screen, "black", [int(WIDTH / 5 * 2) - 5, 55], [int(WIDTH / 5 * 3) + 5, 55], 10)
+        pyg.draw.line(screen, "red", [int(WIDTH / 5 * 2), 55], [int(WIDTH / 5 * 3), 55], 5)
+        pyg.draw.line(screen, "green", [int(WIDTH / 5 * 2), 55], [int(WIDTH / 5 * 2) + int(WIDTH / 5) * (lowest_timer[1] / lowest_timer[2]), 55], 5)
+        
     
     if state == "purchases":
         purchase_inbox.show_purchases(display_screen)
@@ -144,6 +149,8 @@ while running:
     inbox_purchases.update_multipliers()
 
     inbox_email.increment_timer()
+
+    inbox_shop.check_service_unlocked(inbox_purchases)
 
 
     display_screen(screen, inbox_purchases, inbox_email, money)

@@ -36,17 +36,17 @@ class shop_inbox:
 
         self.upgrade_cost_multiplier = 2 # Each upgrade increases the cost of the next upgrade by multiplying it by this number
 
-        self.upgrades = { # [Level, max level, cost]
-            "Purchase move speed": [0, 9, 100], # Max of 9 upgrades, each reduces by 1 second
-            "Money per purchase": [0, 10, 50], # Max of 10 upgrades, each increases by 1
-            "Special purchase multiplier": [0, 11, 25], # max of 11 upgrades, each increases multiplier by 5
-            "Email multiplier": [0, 10, 75], # Max of 10 upgrades, each increases multiplier by 0.5
-            "Extra Office Workers": [0, 14, 250], # Max of 14 upgrades, automatically collect a purchase every 2 seconds (reduce by 0.1)
-            "Communications Manager": [0, 12, 20], # Max of 12 upgrades, reduce email spawn time by 10s
-            "Leprechauns Ltd": [0, 7, 150], # Max of 7 upgrades, multiplies chance of special purchases by 1.5
-            "Product Marketing Team": [0, 14, 10], # Max of 14 upgrades, reduces purchase spawn distance by 10 
-            "Echo Company": [0, 10, 150], # Max of 10 upgrades, increases chance to collect two purchases at once by 5%
-        }
+        # self.upgrades = { # [Level, max level, cost]
+        #     "Purchase move speed": [0, 9, 100], # Max of 9 upgrades, each reduces by 1 second
+        #     "Money per purchase": [0, 10, 50], # Max of 10 upgrades, each increases by 1
+        #     "Special purchase multiplier": [0, 11, 25], # max of 11 upgrades, each increases multiplier by 5
+        #     "Email multiplier": [0, 10, 75], # Max of 10 upgrades, each increases multiplier by 0.5
+        #     "Extra Office Workers": [0, 14, 250], # Max of 14 upgrades, automatically collect a purchase every 2 seconds (reduce by 0.1)
+        #     "Communications Manager": [0, 12, 20], # Max of 12 upgrades, reduce email spawn time by 10s
+        #     "Leprechauns Ltd": [0, 7, 150], # Max of 7 upgrades, multiplies chance of special purchases by 1.5
+        #     "Product Marketing Team": [0, 14, 10], # Max of 14 upgrades, reduces purchase spawn distance by 10 
+        #     "Echo Company": [0, 10, 150], # Max of 10 upgrades, increases chance to collect two purchases at once by 5%
+        # }
 
         self.upgrades = { # [Level, max level, cost]
             "Purchase move speed": [0, 9, 100], # Max of 9 upgrades, each reduces by 1 second
@@ -56,11 +56,11 @@ class shop_inbox:
         } 
 
         self.all_optional_services = { # [Level, max level, cost, real/fake, description] You can unlock these as you play the game
-            "Extra Office Workers": [0, 10, 250, "Real", "Automatically collects purchases"], # Automatically collects purchases
+            "Extra Office Workers": [0, 10, 25, "Real", "Automatically collects purchases"], # Automatically collects purchases
             "Communications Manager": [0, 12, 20, "Real", "Reduces email spawn time"], # Email spawn time 
             "Leprechauns Ltd": [0, 9, 125, "Real", "Increases chances of special purchases"], # Increases chance of special purchases spawning
             "Product Marketing Team": [0, 14, 10, "Real", "Reduces time between purchases"], # Reduces purchase spawn distance
-            "Echo Company": [0, 10, 150, "Real", "Chance to collect multiple purchases"], # Chance to collect two purchases at once
+            "Echo Company": [0, 10, 15, "Real", "Chance to collect multiple purchases"], # Chance to collect two purchases at once
 
             "Email Checker" : [0, 0, 0, "Fake", "Reduces scam emails"], # Reduces chance of emails being a scam
             "Workplace AI": [0, 0, 0, "Fake", "Automatically collect emails"], # Automatically collects emails
@@ -72,7 +72,7 @@ class shop_inbox:
         self.real_optional_services = ["Extra Office Workers", "Communications Manager", "Leprechauns Ltd", "Product Marketing Team","Echo Company"]
         self.fake_optional_services = ["Email Checker", "Workplace AI", "Clover Company", "Gold Earners", "Mirror Company"]
 
-        self.currently_available_services = []
+        self.currently_available_services = [["Extra Office Workers", "Real"], ["Echo Company", "Real"], ["Email Checker", "Fake"]]
 
         self.money_barrier = 10 # Amount needed to unlock next optional service
 
@@ -127,6 +127,9 @@ class shop_inbox:
                     if service[1] == "Real": # If you chose a real service, add it is an upgrade
                         self.upgrades[service[0]] = self.all_optional_services[service[0]][:3] # Only keeps the important parts
                         self.currently_available_services.remove(service)
+
+                        if service[0] == "Extra Office Workers":
+                            purchase_inbox.extra_workers = [0, 5.5 * 60] # Enables extra workers
 
                         for service in self.currently_available_services: # Re-add the other services to their respective lists
                             if service[1] == "Real": 
@@ -186,6 +189,11 @@ class shop_inbox:
                 email_inbox.email_timer[1] -= 10 * 60 # Reduce 10 seconds
             if clicked_upgrade == "Email multiplier":
                 email_inbox.email_multiplier += 0.5
+            
+            if clicked_upgrade == "Extra Office Workers":
+                purchase_inbox.extra_workers[1] -= 0.5 * 60
+            if clicked_upgrade == "Echo Company":
+                purchase_inbox.echo_chance += 5
 
 
             purchase_inbox.add_particles(upgrade_rect.left, upgrade_rect.right, upgrade_rect.y, self.upgrades[clicked_upgrade][0]) # Add some particles to make it more satisfying to buy an upgrade, increases the higher level it is

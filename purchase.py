@@ -3,9 +3,15 @@ import random as rnd
 
 particle_img = pyg.image.load("images/Particle.png")
 
-# First purchase could start at 270, 160 and go to 1535, 220 (1265, 60)
-
 exit_icon = pyg.image.load("images/exit icon.png")
+
+# A function to get each text element displayed correctly
+def display_text(text, x, y, size, colour, screen):
+    font = pyg.font.Font("freesansbold.ttf", size) # Gets the font freesansbold and sets it size
+    text = font.render(text, True, colour) # Renders the font with the text and colour
+    textRect = text.get_rect() # Turns the font into a rect
+    textRect.center = (x, y) # Sets the centre of the font rect
+    screen.blit(text, textRect) # Display the text
 
 class purchase_inbox:
     def __init__(self, WIDTH, HEIGHT):
@@ -31,6 +37,11 @@ class purchase_inbox:
         self.purchase_move_speed = 70 / self.purchase_time_to_move # Needs to move 70 pixels total
         
         self.particles = [] # [Rect, velocity]
+        self.combos = [] # [x, y, int, timer]
+
+        self.extra_workers = None # These are how you automate collecting purchases. When you unlock it, it becomes [0, 5.5 * 60] for [ticks, ticks until auto collect]
+
+        self.echo_chance = 0 # Chance to collect purchases multiple times in one click
 
         self.fill_purchases()
 
@@ -77,6 +88,15 @@ class purchase_inbox:
             self.particles.append([[left_x, y], [-x_velo, y_velo], 0])
             self.particles.append([[right_x, y], [x_velo, y_velo], 0])
 
+    def update_combos(self):
+        finished_timers = []
+        for combo in self.combos:
+            combo[3] -= 1
+            if combo[3] <= 0:
+                finished_timers.append(combo)
+
+        for combo in finished_timers:
+            self.combos.remove(combo)
     #------------------------ PURCHASES -----------------------
 
     def fill_purchases(self):
@@ -122,15 +142,28 @@ class purchase_inbox:
         right = clicked_purchase[3].right
         y = clicked_purchase[3].y
 
+        combo = 1
+        while True:
+            if rnd.randint(1, 100) <= self.echo_chance / combo:
+                combo += 1
+            else:
+                break
+        
+        if combo > 1:
+            self.combos.append([right - 50, clicked_purchase[3].top, combo, combo * 30]) # The timer goes on for (combo) seconds / 2
+
         if clicked_purchase[1] == "normal":
-            money = self.money_per_purchase
+            income = self.money_per_purchase
             loops = self.money_per_purchase * 2
         if clicked_purchase[1] == "special":
             loops = self.special_purchase_multiplier * 2
-            money = self.money_per_purchase * self.special_purchase_multiplier
+            income = self.money_per_purchase * self.special_purchase_multiplier
         
-        loops = int(loops * self.overall_money_multiplier)
-        money = money * self.overall_money_multiplier
+        loops = int(loops * self.overall_money_multiplier) * combo
+        income = income * self.overall_money_multiplier * combo
+
+        if loops > 20: # Reduces lag hopefully
+            loops = 20
 
         self.add_particles(left, right, y, loops)
 
@@ -143,7 +176,7 @@ class purchase_inbox:
             self.purchases[i][0] -= 1 # Decrement all subsequent index by 1
             self.purchases[i][2] += self.purchase_time_to_move # Makes each needed purchase move up by 5px each tick for 14 ticks (70 total) to get back to correct position
         
-        return money
+        return income
 
     def add_purchase(self, lowest_purchase):
         latest_purchase = self.purchases[-1]
@@ -161,6 +194,19 @@ class purchase_inbox:
         index = latest_purchase[0] + 1
         self.purchases.append([index, purchase_type, purchase_move_timer, new_purchase])
 
+    def check_auto_collect_purchases(self, money):
+        if self.extra_workers != None:
+            self.extra_workers[0] += 1
+            if self.extra_workers[0] >= self.extra_workers[1]: # If it is time to auto collect a purchase
+                # Collect the top purchase always ([3] is its rect)
+                if self.purchases[0][3].top <= self.window_pos[1] + self.height / 4 * 3: # If there is a purchase on screen
+                    pos_x = self.purchases[0][3].x
+                    pos_y = self.purchases[0][3].y
+                    money = self.check_purchase_clicked((pos_x, pos_y))
+                    self.extra_workers[0] = 0
+        return money
+
+
     #------------------------ DISPLAY -----------------------
     
     def show_particles(self, screen):
@@ -168,6 +214,9 @@ class purchase_inbox:
             new_particle = particle_img
             new_particle = pyg.transform.rotate(new_particle, particle[2])
             screen.blit(new_particle, particle[0])
+        
+        for combo in self.combos:
+            display_text("Combo x" + str(combo[2]), combo[0], combo[1], int(5 + (combo[3] / 5)), "black", screen)
 
     def show_purchases(self, screen):
         # Draws the purchase inbox window then the purchases, then the outlines so they are on top

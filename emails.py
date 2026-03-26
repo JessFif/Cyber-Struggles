@@ -1,9 +1,9 @@
 import pygame as pyg
 import random as rnd
 
-test = [[12, 23], [0.2, 135], [213, 2]]
-test = sorted(test, key=lambda x: x[1])
-print(test)
+# test = [[12, 23], [0.2, 135], [213, 2]]
+# test = sorted(test, key=lambda x: x[1])
+# print(test)
 
 
 
@@ -32,7 +32,7 @@ class email_inbox:
         self.open_email = None # Shows what email has been clicked on
 
         self.email_timer = [0, 180 * 60] # [Current time, at whattime the next email spawns (in ticks)]
-        self.email_timer = [10 * 60, 10 * 60] # test
+        self.email_timer = [120 * 60, 120 * 60] # test
 
         self.email_multiplier = 2.5 # Multiplier for how much money you get for reporting emails, can be upgraded in the shop and by reporting emails correctly
     

@@ -149,6 +149,8 @@ while running:
     inbox_purchases.move_particles()
     inbox_purchases.move_purchases()
     inbox_purchases.update_multipliers()
+    inbox_purchases.check_auto_collect_purchases(money)
+    inbox_purchases.update_combos()
 
     inbox_email.increment_timer()
 

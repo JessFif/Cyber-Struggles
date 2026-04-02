@@ -74,6 +74,9 @@ class info_inbox:
         # Draws the purchase inbox window then the purchases, then the outlines so they are on top
         pyg.draw.rect(screen, "light gray", [self.window_pos[0], self.window_pos[1], self.width / 2, self.height / 4 * 3])
 
+
+        display_text(self.current_page, self.window_pos[0] + self.width / 4, self.window_pos[1] + 20, "center", 24, "black", screen) # Display the name of the current page
+
         shift_right = 0
         if self.current_page in self.navigation.keys(): # If the current page is not one that contains info (so is one of home, phishing styles or third party services)
             index = 0
@@ -107,7 +110,7 @@ class info_inbox:
                 pyg.draw.rect(screen, "black", home_rect, 2) # Outline
             display_text("Home", self.window_pos[0] + 20, self.window_pos[1] + 72, "topleft", 16, "black", screen)
         if self.current_page not in self.navigation.keys(): # Add another backwards navigation to the previous page if you are on an info page
-            back_rect = pyg.Rect(self.window_pos[0] + 100, self.window_pos[1] + 65, 200, 30)
+            back_rect = pyg.Rect(self.window_pos[0] + 100, self.window_pos[1] + 65, 170, 30)
 
             mouse_pos = pyg.mouse.get_pos() # Gonna check if the user is hovering over the back button
             mouse_rect = pyg.Rect(mouse_pos[0], mouse_pos[1], 10, 10)
@@ -122,6 +125,58 @@ class info_inbox:
                 if self.current_page in self.navigation[page]:
                     previous_page = page
             display_text(previous_page, self.window_pos[0] + 105, self.window_pos[1] + 72, "topleft", 16, "black", screen)
+        
+
+
+        # GETS THE INFO FROM THE INFO PAGES
+        description = ""
+        reviews = []
+
+        if self.current_page in self.navigation["Third Party Services"]: # If its a third party service, display the three user reviews of the service below
+            f = open("info/" + self.current_page + ".txt", "r")
+            new_text = "" # Collects all of the text into one string for each section
+            for line in f:
+                if line.strip() != "-":
+                    new_text += line
+                else:
+                    if description == "":
+                        description = new_text
+                    else:
+                        reviews.append(new_text)
+                    new_text = ""
+            reviews.append(new_text) # Appends the last review
+
+            f.close()
+        
+        if self.current_page in self.navigation["Phishing styles"]: # If its a phishing style, just display the description
+            f = open("info/" + self.current_page + ".txt", "r")
+            description = f.read()
+            f.close()
+        
+        if description != "": # If there is a description, display it
+            index = 0
+            for text in description:
+                while len(text) > 70: # Since pygame doesn't have text wrapping, I split the text into multiple chunks
+                    check_space = 70
+                    while text[check_space] != " ": # I try to split the text at a space words make sense
+                        check_space -= 1
+                        if check_space == 0:
+                            check_space = 69 # Since I add 1 after the loop
+                            break
+                    check_space += 1 # To get rid of the space at the start of the next line
+                    display_text(text[:check_space], self.window_pos[0] + 10, self.window_pos[1] + 155 + index * 25, "topleft", 20, "black", screen)
+                    text = text[check_space:]
+                    index += 1
+
+                display_text(text, self.window_pos[0] + 10, self.window_pos[1] + 155 + index * 25, "topleft", 20, "black", screen)
+                index += 1
+        
+        if reviews != []: # If there are reviews, display them
+            display_text("User Reviews:", self.window_pos[0] + 10, self.window_pos[1] + 155 + index * 25, "topleft", 20, "black", screen)
+            index += 1
+            for review in reviews:
+                display_text("- " + review, self.window_pos[0] + 30, self.window_pos[1] + 155 + index * 25, "topleft", 20, "black", screen)
+                index += 1
 
 
         # Draws the outside of the window

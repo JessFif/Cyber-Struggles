@@ -56,10 +56,16 @@ class info_inbox:
                     shift_right = self.width / 4
                     index = 0
                     
-        home_rect = pyg.Rect(self.window_pos[0] + 15, self.window_pos[1] + 65, 75, 30)
+        home_rect = pyg.Rect(self.window_pos[0] + 15, self.window_pos[1] + 65, 70, 30)
         if mouse_rect.colliderect(home_rect): # If you click on the home button, go back to the home page
             self.current_page = "Home"
-        
+
+        back_rect = pyg.Rect(self.window_pos[0] + 105, self.window_pos[1] + 65, 200, 30)
+        if mouse_rect.colliderect(back_rect): # If you click on the back button, go back to the previous page
+            for page in self.navigation.keys():
+                if self.current_page in self.navigation[page]:
+                    self.current_page = page
+                    break
 
     # ------------------------- DISPLAY -----------------------
 
@@ -89,7 +95,7 @@ class info_inbox:
                     index = 0
 
         if self.current_page != "Home": # Add a home button in top left corner
-            home_rect = pyg.Rect(self.window_pos[0] + 15, self.window_pos[1] + 65, 75, 30)
+            home_rect = pyg.Rect(self.window_pos[0] + 15, self.window_pos[1] + 65, 70, 30)
 
             mouse_pos = pyg.mouse.get_pos() # Gonna check if the user is hovering over the home button
             mouse_rect = pyg.Rect(mouse_pos[0], mouse_pos[1], 10, 10)
@@ -100,6 +106,22 @@ class info_inbox:
                 pyg.draw.rect(screen, "white", home_rect)
                 pyg.draw.rect(screen, "black", home_rect, 2) # Outline
             display_text("Home", self.window_pos[0] + 20, self.window_pos[1] + 72, "topleft", 16, "black", screen)
+        if self.current_page not in self.navigation.keys(): # Add another backwards navigation to the previous page if you are on an info page
+            back_rect = pyg.Rect(self.window_pos[0] + 100, self.window_pos[1] + 65, 200, 30)
+
+            mouse_pos = pyg.mouse.get_pos() # Gonna check if the user is hovering over the back button
+            mouse_rect = pyg.Rect(mouse_pos[0], mouse_pos[1], 10, 10)
+            if mouse_rect.colliderect(back_rect):
+                pyg.draw.rect(screen, "light blue", back_rect) # Makes the button blue if hovering
+                pyg.draw.rect(screen, "black", back_rect, 2) # Outline
+            else:
+                pyg.draw.rect(screen, "white", back_rect)
+                pyg.draw.rect(screen, "black", back_rect, 2) # Outline
+
+            for page in self.navigation.keys():
+                if self.current_page in self.navigation[page]:
+                    previous_page = page
+            display_text(previous_page, self.window_pos[0] + 105, self.window_pos[1] + 72, "topleft", 16, "black", screen)
 
 
         # Draws the outside of the window

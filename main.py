@@ -5,6 +5,7 @@ from win32api import GetSystemMetrics
 from purchase import purchase_inbox
 from shop import shop_inbox
 from emails import email_inbox
+from info import info_inbox
 
 pyg.init()
 
@@ -54,6 +55,10 @@ def display_screen(display_screen, purchase_inbox, email_inbox, money):
     
     if state == "shop":
         inbox_shop.show_shop(display_screen, money, purchase_inbox)
+
+    if state == "info":
+        inbox_info.display_info(display_screen)
+
     # The particles are always shown
     purchase_inbox.show_particles(display_screen)
 
@@ -82,6 +87,7 @@ background = pyg.transform.scale(background, (WIDTH, HEIGHT))
 inbox_purchases = purchase_inbox(WIDTH, HEIGHT)
 inbox_email = email_inbox(WIDTH, HEIGHT)
 inbox_shop = shop_inbox(WIDTH, HEIGHT)
+inbox_info = info_inbox(WIDTH, HEIGHT)
 
 money = 0
 
@@ -130,6 +136,15 @@ while running:
                 if mouse_pos[0] >= exit_icon_pos[0] and mouse_pos[0] <= exit_icon_pos[0] + 50:
                     if mouse_pos[1] >= exit_icon_pos[1] and mouse_pos[1] <= exit_icon_pos[1] + 50:
                         state = "background"
+            
+            if state == "info": # If you are currently in the "info" app, check if you clicked on one of them
+                inbox_info.check_clicked_page(mouse_pos)
+
+                # Check if you clicked on the exit icons
+                exit_icon_pos = inbox_info.get_exit_icon_pos()
+                if mouse_pos[0] >= exit_icon_pos[0] and mouse_pos[0] <= exit_icon_pos[0] + 50:
+                    if mouse_pos[1] >= exit_icon_pos[1] and mouse_pos[1] <= exit_icon_pos[1] + 50:
+                        state = "background"
 
             if state == "background": # If you are on the background screen, check if you clicked on an app icon
                 if mouse_pos[0] >= WIDTH / 3 and mouse_pos[0] <= WIDTH / 3 + 100:
@@ -137,8 +152,8 @@ while running:
                         state = "purchases"
                     elif mouse_pos[1] >= HEIGHT / 5 * 2 and mouse_pos[1] <= HEIGHT / 5 * 2 + 100:
                         state = "email"
-                    # elif mouse_pos[1] >= HEIGHT / 5 * 3 and mouse_pos[1] <= HEIGHT / 5 * 3 + 100:
-                    #     state = "info"
+                    elif mouse_pos[1] >= HEIGHT / 5 * 3 and mouse_pos[1] <= HEIGHT / 5 * 3 + 100:
+                        state = "info"
                     elif mouse_pos[1] >= HEIGHT / 5 * 4 and mouse_pos[1] <= HEIGHT / 5 * 4 + 100:
                         state = "shop"
 

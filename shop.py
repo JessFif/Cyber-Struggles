@@ -56,11 +56,11 @@ class shop_inbox:
         } 
 
         self.all_optional_services = { # [Level, max level, cost, real/fake, description] You can unlock these as you play the game
-            "Extra Office Workers": [0, 10, 25, "Real", "Automatically collects purchases"], # Automatically collects purchases
-            "Communications Manager": [0, 12, 20, "Real", "Reduces email spawn time"], # Email spawn time 
+            "Extra Office Workers": [0, 10, 125, "Real", "Automatically collects purchases"], # Automatically collects purchases
+            "Communications Manager": [0, 12, 75, "Real", "Reduces email spawn time"], # Email spawn time 
             "Leprechauns Ltd": [0, 9, 125, "Real", "Increases chances of special purchases"], # Increases chance of special purchases spawning
-            "Product Marketing Team": [0, 14, 10, "Real", "Reduces time between purchases"], # Reduces purchase spawn distance
-            "Echo Company": [0, 10, 15, "Real", "Chance to collect multiple purchases"], # Chance to collect two purchases at once
+            "Product Marketing Team": [0, 14, 50, "Real", "Reduces time between purchases"], # Reduces purchase spawn distance
+            "Echo Company": [0, 10, 150, "Real", "Chance to collect multiple purchases"], # Chance to collect two purchases at once
 
             "Email Checker" : [0, 0, 0, "Fake", "Reduces scam emails"], # Reduces chance of emails being a scam
             "Workplace AI": [0, 0, 0, "Fake", "Automatically collect emails"], # Automatically collects emails
@@ -72,7 +72,8 @@ class shop_inbox:
         self.real_optional_services = ["Extra Office Workers", "Communications Manager", "Leprechauns Ltd", "Product Marketing Team","Echo Company"]
         self.fake_optional_services = ["Email Checker", "Workplace AI", "Clover Company", "Gold Earners", "Mirror Company"]
 
-        self.currently_available_services = [["Extra Office Workers", "Real"], ["Echo Company", "Real"], ["Email Checker", "Fake"]]
+        self.currently_available_services = [["Extra Office Workers", "Real"], ["Echo Company", "Real"], ["Email Checker", "Fake"]] # For testing
+        self.currently_available_services = []
 
         self.money_barrier = 10 # Amount needed to unlock next optional service
 

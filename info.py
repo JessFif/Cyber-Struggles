@@ -52,7 +52,7 @@ class info_inbox:
                     self.current_page = page
                     return
                 index += 1
-                if index >= 8 and shift_right == 0: # If there are more than 8 options, start a new column
+                if index >= 5 and shift_right == 0: # If there are more than 5 options, start a new column
                     shift_right = self.width / 4
                     index = 0
                     
@@ -142,7 +142,7 @@ class info_inbox:
                     if description == "":
                         description = new_text
                     else:
-                        reviews.append(new_text)
+                        reviews.append(new_text.strip())
                     new_text = ""
             reviews.append(new_text) # Appends the last review
 
@@ -150,10 +150,19 @@ class info_inbox:
         
         if self.current_page in self.navigation["Phishing styles"]: # If its a phishing style, just display the description
             f = open("info/" + self.current_page + ".txt", "r")
-            description = f.read()
+            new_text = "" # Collects all of the text into one string for each section
+            for line in f:
+                if line.strip() != "-":
+                    new_text += line
+                else:
+                    description += new_text
+                    new_text = ""
+            description += new_text # Appends the last review
+
             f.close()
         
         if description != "": # If there is a description, display it
+            description = description.split("\n")
             index = 0
             for text in description:
                 while len(text) > 70: # Since pygame doesn't have text wrapping, I split the text into multiple chunks
@@ -175,7 +184,31 @@ class info_inbox:
             display_text("User Reviews:", self.window_pos[0] + 10, self.window_pos[1] + 155 + index * 25, "topleft", 20, "black", screen)
             index += 1
             for review in reviews:
-                display_text("- " + review, self.window_pos[0] + 30, self.window_pos[1] + 155 + index * 25, "topleft", 20, "black", screen)
+                text = review
+                first_line = True
+                while len(text) > 70: # Since pygame doesn't have text wrapping, I split the text into multiple chunks
+                    check_space = 70
+                    while text[check_space] != " ": # I try to split the text at a space words make sense
+                        check_space -= 1
+                        if check_space == 0:
+                            check_space = 69 # Since I add 1 after the loop
+                            break
+                    check_space += 1 # To get rid of the space at the start of the next line
+                    if first_line:
+                        display_text("- " + text[:check_space], self.window_pos[0] + 30, self.window_pos[1] + 155 + index * 25, "topleft", 20, "black", screen)
+                        first_line = False
+                    else:
+                        display_text("  " + text[:check_space], self.window_pos[0] + 30, self.window_pos[1] + 155 + index * 25, "topleft", 20, "black", screen)
+
+                    text = text[check_space:]
+                    index += 1
+
+                if first_line:
+                    display_text("- " + text[:check_space], self.window_pos[0] + 30, self.window_pos[1] + 155 + index * 25, "topleft", 20, "black", screen)
+                    first_line = False
+                else:
+                    display_text("  " + text[:check_space], self.window_pos[0] + 30, self.window_pos[1] + 155 + index * 25, "topleft", 20, "black", screen)
+
                 index += 1
 
 

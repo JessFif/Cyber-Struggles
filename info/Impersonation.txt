@@ -1,0 +1,5 @@
+This works by the scammer trying to pass off as a legitimate and most importantly trusted individual/organisation. They could do this in several ways, from manufacturing false identities in hopes you don't research if they exist, to subtly changing a character in an email.
+
+There are often fewer ways for you to identify these phishing attempts, but having an understanding on who should be emailing you, and knowing to double check the sender if the email contains a link/request can go a long way to improving your safety.
+
+If you are part of a company, you should also try to see if the sender's email matches the companies email-naming policy!

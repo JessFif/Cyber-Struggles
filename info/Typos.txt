@@ -1,0 +1,3 @@
+An increasingly rare but still present phishing style is simply if the email that is meant to be professional contains errors, as companies and high-ranking officials will ensure that their emails cannot be misinterpreted and that they contain correct grammar/spelling.
+
+Note that with the rise of generative AI, the chance of typos reduces drastically, as most scammers are able to either run their email first through an AI to check for inconsistencies, or simply ask AI to generate one.

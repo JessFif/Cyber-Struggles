@@ -34,7 +34,7 @@ class shop_inbox:
         self.window_pos = [WIDTH / 4, HEIGHT / 6]
         self.exit_icon_pos = [self.window_pos[0] + self.width / 2 - 50, self.window_pos[1]] # To be used for checking if you click on the exit icon
 
-        self.upgrade_cost_multiplier = 2 # Each upgrade increases the cost of the next upgrade by multiplying it by this number
+        self.upgrade_cost_multiplier = 2.5 # Each upgrade increases the cost of the next upgrade by multiplying it by this number
 
         # self.upgrades = { # [Level, max level, cost]
         #     "Purchase move speed": [0, 9, 100], # Max of 9 upgrades, each reduces by 1 second
@@ -99,7 +99,7 @@ class shop_inbox:
             possible_services.append([service, "Fake"])
             self.fake_optional_services.remove(service)
 
-            if rnd.randint(0, 1) == 0:
+            if rnd.randint(0, 1) == 0 and self.real_optional_services != []: # If there is a real service available, 50% chance of getting a real one, otherwise gets a fake one (if there is one available)
                 random_num = rnd.randint(0, len(self.real_optional_services) - 1)
                 service = self.real_optional_services[random_num]
                 possible_services.append([service, "Real"])

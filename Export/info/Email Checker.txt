@@ -1,0 +1,7 @@
+A simple tool that claims to filter out scam emails before they reach you. It promises a safer inbox experience by automatically identifying suspicious messages using proprietary detection methods.
+-
+"This product is AMAZING and has completely changed my workflow experience in a positive and incredible way!!!"
+-
+"I have not seen a SINGLE scam email ever again. This system is 100% accurate and flawless."
+-
+"Installed it and immediately everything was better. No issues whatsoever and perfect performance always."

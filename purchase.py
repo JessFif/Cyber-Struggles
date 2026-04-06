@@ -43,12 +43,37 @@ class purchase_inbox:
 
         self.echo_chance = 0 # Chance to collect purchases multiple times in one click
 
+        # self.update_status = ["stable", 10*60*60] # Starts out as stable, but after 10 minutes of play there is then a small chance each game tick that it will become unstable. After a minute of being unstable, there is a small chance each tick that a "vulnerability" will be found, giving you a 0.5x multiplier until you update the app
+
+
         self.fill_purchases()
 
     # ------------------------ RETEURNS -----------------------
 
     def get_exit_icon_pos(self):
         return self.exit_icon_pos
+
+    # ------------------------ UPDATES -----------------------
+
+    # def check_update_status(self):
+    #     if self.update_status[0] == "stable":
+    #         if self.update_status[1] > 0:
+    #             self.update_status[1] -= 1
+    #         else:
+    #             if rnd.randint(1, 500) <= 1: # 1% chance every tick after the first 10 minutes that the app becomes unstable
+    #                 self.update_status[0] = "unstable"
+    #                 self.update_status[1] = 60 * 60 # After a minute of being unstable, there is then a small chance each tick that a vulnerability will be found
+        
+    #     elif self.update_status[0] == "unstable":
+    #         if self.update_status[1] > 0:
+    #             self.update_status[1] -= 1
+    #         else:
+    #             if rnd.randint(1, 500) <= 1: # 1% chance every tick after the first minute of being unstable that a vulnerability is found
+    #                 self.update_status[0] = "vulnerable"
+        
+    #     elif self.update_status[0] == "vulnerable":
+    #         self.overall_money_multiplier_timers.append([0.5, 1]) # Adds a 0.5x multiplier that keeps reaplying itself every tick until you update it 
+        
 
     # ------------------------- MULTIPLIERS -----------------------
 

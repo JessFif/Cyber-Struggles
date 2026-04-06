@@ -32,7 +32,7 @@ class email_inbox:
         self.open_email = None # Shows what email has been clicked on
 
         self.email_timer = [0, 180 * 60] # [Current time, at whattime the next email spawns (in ticks)]
-        self.email_timer = [120 * 60, 120 * 60] # test
+        # self.email_timer = [120 * 60, 10 * 60] # test
 
         self.email_multiplier = 2.5 # Multiplier for how much money you get for reporting emails, can be upgraded in the shop and by reporting emails correctly
     
@@ -66,7 +66,7 @@ class email_inbox:
             # Report as Scam
             if mouse_pos[0] >= self.window_pos[0] + self.width / 8 - 150 and mouse_pos[0] <= self.window_pos[0] + self.width / 8 + 50:
                 if mouse_pos[1] >= self.window_pos[1] + self.height / 4 * 3 - 50 and mouse_pos[1] <= self.window_pos[1] + self.height / 4 * 3 - 20:
-                    if self.open_email.email_type != "real":
+                    if self.open_email.email_type != "Real":
                         inbox.overall_money_multiplier_timers.append([self.email_multiplier, 60 * 60, 60 * 60]) # If you report an email as a scam and it is a scam, add a 2.5x multiplier for 3 minutes
                     else:
                         inbox.overall_money_multiplier_timers.append([0.5, 30 * 60, 30 * 60]) # If you report an email as a scam and it is real, add a 0.5x multiplier for 3 minutes
@@ -93,7 +93,7 @@ class email_inbox:
             # Mark as Valid
             if mouse_pos[0] >= self.window_pos[0] + self.width / 8 * 3 - 100 + 50 and mouse_pos[0] <= self.window_pos[0] + self.width / 8 * 3 + 100:    
                 if mouse_pos[1] >= self.window_pos[1] + self.height / 4 * 3 - 50 and mouse_pos[1] <= self.window_pos[1] + self.height / 4 * 3 - 20:
-                    if self.open_email.email_type == "real":
+                    if self.open_email.email_type == "Real":
                         inbox.overall_money_multiplier_timers.append([self.email_multiplier, 60 * 60, 60 * 60]) # If you report an email as real and it is real, add a 2.5x multiplier for 3 minutes
                     else:
                         inbox.overall_money_multiplier_timers.append([0.5, 30 * 60, 30 * 60]) # If you report an email as real and it is a scam, add a 0.5x multiplier for 3 minutes
@@ -198,24 +198,30 @@ class email:
     def generate_email(self):
         self.get_sender() # Gets a completely random sender
 
-        # Gets a random title and body text (with the same random number chosen in get_title)
-        index = self.get_title()
-        self.get_body_text(index)
 
         if rnd.randint(1,2) == 1:
-            self.email_type = "real"
+            self.email_type = "Real"
         else:
-            scam_types = ["impersonation", "urgency", "too good", "typos"]
-            scam_types = ["impersonation"] # testing
+            scam_types = ["Impersonation", "Urgency", "Too good", "Typos"]
+            # scam_types = ["Impersonation"]
             self.email_type = rnd.choice(scam_types)
             # Replace certain identifiers within the body text with extra words that make the email a certain scam type
-            if self.email_type == "impersonation":
+            if self.email_type == "Impersonation":
                 if rnd.randint(1,2) == 1:
                     self.sender = self.sender.replace("e", "3")
                     self.sender = self.sender.replace("o", "0")
                     self.sender = self.sender.replace("l", "1")
                 else:
                     self.sender = self.sender + "_"
+            
+        
+        # Gets a random title and body text (with the same random number chosen in get_title)
+        if self.email_type == "Impersonation": # If impersonation, use real emails
+            index = self.get_title("Real")
+            self.get_body_text(index, "Real")
+        else:
+            index = self.get_title(self.email_type)
+            self.get_body_text(index, self.email_type)
         
         self.sender = self.sender + "@gmail.com"
 
@@ -229,8 +235,8 @@ class email:
         self.sender = rnd.choice(possible_senders)
         f.close()
 
-    def get_title(self):
-        f = open("emails/titles.txt", "r")
+    def get_title(self, email_type):
+        f = open("emails/" + email_type + "/titles.txt", "r")
         possible_titles = []
         for line in f:
             if line.strip() != "":
@@ -241,8 +247,8 @@ class email:
         f.close()
         return index
 
-    def get_body_text(self, index):
-        f = open("emails/body text.txt", "r")
+    def get_body_text(self, index, email_type):
+        f = open("emails/" + email_type + "/body text.txt", "r")
         possible_body_text = []
         new_body_text = "" # Collects all of the body text into one string, appends to the possible body text list, then resets
         for line in f:

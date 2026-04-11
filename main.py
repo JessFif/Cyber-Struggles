@@ -25,7 +25,7 @@ def display_screen(display_screen, purchase_inbox, email_inbox, money):
 
 
     # Display icons
-    display_screen.blit(menu_icon, [0, 0])
+    # display_screen.blit(menu_icon, [0, 0])
     display_screen.blit(exit_icon, [WIDTH - 50, 0])
 
     if state == "background": # Shows the app icons
@@ -118,7 +118,9 @@ while running:
                         state = "background"
             
             if state == "email": # If you are currently in the "email" app, check if you clicked on one of them
-                inbox_email.check_email_click(mouse_pos, inbox_purchases)
+                scam_clicked = inbox_email.check_email_click(mouse_pos, inbox_purchases, inbox_info)
+                if scam_clicked == True:
+                    state = "info"
 
                 # Check if you clicked on the exit icons
                 exit_icon_pos = inbox_email.get_exit_icon_pos()

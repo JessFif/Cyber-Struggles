@@ -32,7 +32,7 @@ class email_inbox:
         self.open_email = None # Shows what email has been clicked on
 
         self.email_timer = [0, 180 * 60] # [Current time, at whattime the next email spawns (in ticks)]
-        # self.email_timer = [120 * 60, 10 * 60] # test
+        self.email_timer = [120 * 60, 10 * 60] # test
 
         self.email_multiplier = 2.5 # Multiplier for how much money you get for reporting emails, can be upgraded in the shop and by reporting emails correctly
     
@@ -55,28 +55,30 @@ class email_inbox:
             email.update_rect(index, inbox)
             index += 1
 
-    def check_email_click(self, mouse_pos, inbox):
+    def check_email_click(self, mouse_pos, inbox, info_inbox):
+        clicked_on_scam = False
         if self.open_email != None: # If you have an email open, check if you clicked on the close button or a reporting button
             # Close button
             if mouse_pos[0] >= self.window_pos[0] + self.width / 2 - 100 and mouse_pos[0] <= self.window_pos[0] + self.width / 2 - 5:
                 if mouse_pos[1] >= self.window_pos[1] + 50 and mouse_pos[1] <= self.window_pos[1] + 100:
                     self.open_email = None
-                    return
+                    return clicked_on_scam
             
+
             # Report as Scam
             if mouse_pos[0] >= self.window_pos[0] + self.width / 8 - 150 and mouse_pos[0] <= self.window_pos[0] + self.width / 8 + 50:
                 if mouse_pos[1] >= self.window_pos[1] + self.height / 4 * 3 - 50 and mouse_pos[1] <= self.window_pos[1] + self.height / 4 * 3 - 20:
                     if self.open_email.email_type != "Real":
                         inbox.overall_money_multiplier_timers.append([self.email_multiplier, 60 * 60, 60 * 60]) # If you report an email as a scam and it is a scam, add a 2.5x multiplier for 3 minutes
                     else:
-                        inbox.overall_money_multiplier_timers.append([0.5, 30 * 60, 30 * 60]) # If you report an email as a scam and it is real, add a 0.5x multiplier for 3 minutes
+                        inbox.overall_money_multiplier_timers.append([0.75, 15 * 60, 15 * 60]) # If you report an email as a scam and it is real, add a 0.75x multiplier for 15 seconds
                     
                     inbox.overall_money_multiplier_timers = sorted(inbox.overall_money_multiplier_timers, key=lambda x:x[1]) # Sorts the multipliers so that the one that will dissapear first at first in queue
 
                     self.emails.remove(self.open_email) # Remove the email you just reported from the inbox
                     self.open_email = None
                     self.update_all_emails(inbox)
-                    return 
+                    return clicked_on_scam
             
             # Send to Security Team
             if mouse_pos[0] >= self.window_pos[0] + self.width / 8 * 2 - 100 and mouse_pos[0] <= self.window_pos[0] + self.width / 8 * 2 + 100: 
@@ -88,7 +90,7 @@ class email_inbox:
                     self.emails.remove(self.open_email) # Remove the email you just reported from the inbox
                     self.open_email = None
                     self.update_all_emails(inbox)
-                    return 
+                    return clicked_on_scam
             
             # Mark as Valid
             if mouse_pos[0] >= self.window_pos[0] + self.width / 8 * 3 - 100 + 50 and mouse_pos[0] <= self.window_pos[0] + self.width / 8 * 3 + 100:    
@@ -96,20 +98,23 @@ class email_inbox:
                     if self.open_email.email_type == "Real":
                         inbox.overall_money_multiplier_timers.append([self.email_multiplier, 60 * 60, 60 * 60]) # If you report an email as real and it is real, add a 2.5x multiplier for 3 minutes
                     else:
-                        inbox.overall_money_multiplier_timers.append([0.5, 30 * 60, 30 * 60]) # If you report an email as real and it is a scam, add a 0.5x multiplier for 3 minutes
+                        info_inbox.current_page = self.open_email.email_type # If you report an email as real and it is a scam, show the type of scam in the info page
+                        clicked_on_scam = True
+                        inbox.overall_money_multiplier_timers.append([0.5, 30 * 60, 30 * 60]) # If you report an email as real and it is a scam, add a 0.5x multiplier for 30 seconds
                         
                     inbox.overall_money_multiplier_timers = sorted(inbox.overall_money_multiplier_timers, key=lambda x:x[1]) # Sorts the multipliers so that the one that will dissapear first at first in queue
                     
                     self.emails.remove(self.open_email) # Remove the email you just reported from the inbox
                     self.open_email = None
                     self.update_all_emails(inbox)
-                    return  
+                    return  clicked_on_scam
         else:
             for email in self.emails:
                 mouse_rect = pyg.Rect(mouse_pos[0], mouse_pos[1], 10, 10)
                 if mouse_rect.colliderect(email.rect):
                     self.open_email = email
-                    return
+                    return clicked_on_scam
+        return clicked_on_scam
 
     # ------------------------ DISPLAY -----------------------
 
@@ -202,7 +207,7 @@ class email:
         if rnd.randint(1,2) == 1:
             self.email_type = "Real"
         else:
-            scam_types = ["Impersonation", "Urgency", "Too good", "Typos"]
+            scam_types = ["Impersonation", "Urgency", "Too Good", "Typos"]
             # scam_types = ["Impersonation"]
             self.email_type = rnd.choice(scam_types)
             # Replace certain identifiers within the body text with extra words that make the email a certain scam type

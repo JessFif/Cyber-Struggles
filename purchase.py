@@ -261,5 +261,8 @@ class purchase_inbox:
         pyg.draw.line(screen, "black", [self.window_pos[0], self.window_pos[1] + 50], [self.window_pos[0] + self.width / 2, self.window_pos[1] + 50], 2)
         screen.blit(exit_icon, [self.window_pos[0] + self.width / 2 - 50, self.window_pos[1]])
 
+        # Writes title of the screen
+        display_text("Purchases", int(self.window_pos[0] + self.width / 4), self.window_pos[1] + 25, 25, "black", screen)
+
         # Draws a light blue box that reaches the bottom of the screen to hide purchases that shouldn't be on screen
         pyg.draw.rect(screen, "light blue", [self.window_pos[0], self.window_pos[1] + self.height / 4 * 3, self.width / 2, self.height - (self.window_pos[1] + self.height / 4 * 3)])

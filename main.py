@@ -28,11 +28,15 @@ def display_screen(display_screen, purchase_inbox, email_inbox, money):
     # display_screen.blit(menu_icon, [0, 0])
     display_screen.blit(exit_icon, [WIDTH - 50, 0])
 
-    if state == "background": # Shows the app icons
+    if state == "background": # Shows the app icons and names
         display_screen.blit(purchases_icon, [WIDTH / 3, HEIGHT / 5])
+        display_text("Purchases", int(WIDTH / 3 + 50), int(HEIGHT / 5 + 120), 20, "black", display_screen)
         display_screen.blit(email_icon, [WIDTH / 3, HEIGHT / 5 * 2])
+        display_text("Email", int(WIDTH / 3 + 50), int(HEIGHT / 5 * 2 + 120), 20, "black", display_screen)
         display_screen.blit(info_icon, [WIDTH / 3, HEIGHT / 5 * 3])
+        display_text("Info", int(WIDTH / 3 + 50), int(HEIGHT / 5 * 3 + 120), 20, "black", display_screen)
         display_screen.blit(shop_icon, [WIDTH / 3, HEIGHT / 5 * 4])
+        display_text("Shop", int(WIDTH / 3 + 50), int(HEIGHT / 5 * 4 + 120), 20, "black", display_screen)
 
     # Display money and multiplier
     display_text("Money: $" + str(round(money, 2)), int(WIDTH / 2), 40, 25, "black", display_screen)

@@ -32,7 +32,7 @@ class email_inbox:
         self.open_email = None # Shows what email has been clicked on
 
         self.email_timer = [0, 180 * 60] # [Current time, at whattime the next email spawns (in ticks)]
-        self.email_timer = [120 * 60, 10 * 60] # test
+        # self.email_timer = [120 * 60, 10 * 60] # test
 
         self.email_multiplier = 2.5 # Multiplier for how much money you get for reporting emails, can be upgraded in the shop and by reporting emails correctly
     
